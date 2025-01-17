@@ -15,7 +15,3 @@ Data Visualization: Displaying large text data in an easy-to-understand visual f
 Example:
 If you have a collection of tweets about a recent event, a word cloud might show "news," "event," and "update" as the largest words if they were used most often.
 
-Tools to Create Word Clouds:
-WordClouds.com (online tool)
-Wordle (another popular tool)
-Python Libraries like wordcloud in matplotlib.
