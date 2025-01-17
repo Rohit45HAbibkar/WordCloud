@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Capture</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f8f9fa;
+    }
+    .camera-container {
+      text-align: center;
+    }
+    video {
+      width: 100%;
+      height: auto;
+      border: 2px solid #007bff;
+      border-radius: 10px;
+    }
+    .btn-capture {
+      margin-top: 20px;
+      background-color: #28a745;
+      color: white;
+    }
+    .captured-images {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .captured-images .captured-item {
+      position: relative;
+      margin: 10px;
+      border: 2px solid #007bff;
+      border-radius: 10px;
+      padding: 5px;
+    }
+    .captured-images .captured-item img {
+      max-width: 100%;
+      max-height: 150px;
+    }
+    .captured-images .captured-item .discard-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: red;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      padding: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="camera-container">
+    <h2>Capture Image from Camera</h2>
+    <video id="video" autoplay></video>
+    <button id="captureBtn" class="btn btn-capture w-100">Capture Image</button>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <div id="capturedImages" class="captured-images">
+      <!-- Captured images will appear here -->
+    </div>
+  </div>
+
+  <script>
+    let currentStream = null;
+    const videoElement = document.getElementById('video');
+    const captureBtn = document.getElementById('captureBtn');
+    const canvas = document.getElementById('canvas');
+    const capturedImagesContainer = document.getElementById('capturedImages');
+
+    // Access webcam and stream to video element
+    async function startCamera() {
+      try {
+        const constraints = {
+          video: true
+        };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        videoElement.srcObject = stream;
+
+        if (currentStream) {
+          currentStream.getTracks().forEach(track => track.stop()); // Stop previous stream
+        }
+
+        currentStream = stream;
+      } catch (err) {
+        console.error("Error accessing camera: ", err);
+      }
+    }
+
+    // Initialize camera stream
+    startCamera();
+
+    // Capture the current video frame
+    captureBtn.addEventListener("click", () => {
+      const context = canvas.getContext("2d");
+      canvas.width = videoElement.videoWidth;
+      canvas.height = videoElement.videoHeight;
+      context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+      const imageUrl = canvas.toDataURL("image/png");
+
+      // Create a new image element and add it to the captured images section
+      const capturedItem = document.createElement('div');
+      capturedItem.classList.add('captured-item');
+
+      const img = document.createElement('img');
+      img.src = imageUrl;
+
+      const discardBtn = document.createElement('button');
+      discardBtn.classList.add('discard-btn');
+      discardBtn.innerText = 'X';
+      discardBtn.addEventListener('click', () => {
+        capturedItem.remove();  // Remove image when discard button is clicked
+      });
+
+      capturedItem.appendChild(img);
+      capturedItem.appendChild(discardBtn);
+      capturedImagesContainer.appendChild(capturedItem);
+    });
+  </script>
+
+  <!-- Bootstrap JS (optional) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
